@@ -12,6 +12,7 @@ alias lt="ls --tree"
 alias szsh="source ~/.zshrc"
 alias ealias="nvim ~/.zsh_aliases"
 alias ezsh="nvim ~/.zshrc"
+alias edot="cd ~/dotfiles && nvim ."
 
 alias gs="git status"
 alias ga="git add ."
@@ -49,3 +50,4 @@ alias ls="lsd"
 alias warp="warp-cli"
 
 alias t="tmux"
+
