@@ -79,3 +79,10 @@ export PATH="/home/suman/.local/bin:$PATH"
 
 # Set up fzf key bindings and fuzzy completion
 source <(fzf --zsh)
+
+# Auto-start tmux (attach to "main" or create it)
+if [[ -o interactive ]] && command -v tmux >/dev/null 2>&1; then
+  if [[ -z "$TMUX" && "$TERM_PROGRAM" != "vscode" ]]; then
+    tmux attach -t main 2>/dev/null || tmux new -s main
+  fi
+fi
