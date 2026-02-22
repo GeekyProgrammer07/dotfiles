@@ -1,0 +1,51 @@
+alias ..="cd .."
+alias ...="cd ../.."
+alias ....="cd ../../.."
+
+alias c="clear"
+
+alias l="ls -lah"
+alias ll="ls -l"
+alias la="ls -A"
+alias lt="ls --tree"
+
+alias szsh="source ~/.zshrc"
+alias ealias="nvim ~/.zsh_aliases"
+alias ezsh="nvim ~/.zshrc"
+
+alias gs="git status"
+alias ga="git add ."
+alias gc="git commit"
+alias gcm="git commit -m"
+alias gp="git push origin main"
+alias gpl="git pull"
+alias gcl="git clone"
+alias gb="git branch"
+alias gcb="git checkout -b"
+alias gchb="git checkout"
+alias gdb="git branch -d"
+alias gl="git log --oneline"
+
+
+alias ni="npm install"
+alias nis="npm install --save"
+alias nid="npm install --save-dev"
+alias nu="npm uninstall"
+alias nr="npm run"
+alias nd="npm run dev"
+alias nb="npm run build"
+
+alias ganache='~/Downloads/ganache-2.7.1-linux-x86_64.AppImage'
+
+alias zen="zen-browser"
+
+alias open="xdg-open"
+
+alias d="docker"
+alias sql="docker exec -it mysql-container mysql -u root -p"
+
+alias ls="lsd"
+
+alias warp="warp-cli"
+
+alias t="tmux"
