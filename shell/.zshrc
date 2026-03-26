@@ -86,3 +86,7 @@ if [[ -o interactive ]] && command -v tmux >/dev/null 2>&1; then
     tmux attach -t main 2>/dev/null || tmux new -s main
   fi
 fi
+
+
+# Load Angular CLI autocompletion.
+source <(ng completion script)
