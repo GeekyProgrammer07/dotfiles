@@ -717,6 +717,7 @@ require('lazy').setup({
         },
         rust_analyzer = {},
         jdtls = {},
+        lemminx = {},
         ts_ls = {},
       }
 
