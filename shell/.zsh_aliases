@@ -48,6 +48,9 @@ alias sql="docker exec -it mysql-container mysql -u root -p"
 alias ls="lsd"
 
 alias warp="warp-cli"
+alias wc="warp-cli connect"
+alias wd="warp-cli disconnect"
+alias ws="warp-cli status"
 
 alias t="tmux"
 
