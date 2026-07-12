@@ -91,7 +91,7 @@ vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
 -- Set to true if you have a Nerd Font installed and selected in the terminal
-vim.g.have_nerd_font = false
+vim.g.have_nerd_font = true
 
 -- [[ Setting options ]]
 -- See `:help vim.o`
@@ -710,15 +710,32 @@ require('lazy').setup({
               completion = {
                 callSnippet = 'Replace',
               },
+              diagnostics = {
+                globals = { 'vim' }, -- ✅ fix here
+              },
               -- You can toggle below to ignore Lua_LS's noisy `missing-fields` warnings
               -- diagnostics = { disable = { 'missing-fields' } },
             },
           },
         },
-        rust_analyzer = {},
-        jdtls = {},
+        rust_analyzer = {
+          settings = {
+            ['rust-analyzer'] = {
+              cargo = { features = 'all' },
+              check = { command = 'clippy' },
+              imports = { group = { enable = false } },
+              completion = { postfix = { enable = false } },
+            },
+          },
+        },
+        jdtls = {
+          cmd = {
+            'jdtls',
+            '-javaagent:/home/suman/.local/share/nvim/lombok.jar',
+            '-Xbootclasspath/a:/home/suman/.local/share/nvim/lombok.jar',
+          },
+        },
         lemminx = {},
-        ts_ls = {},
       }
 
       -- Ensure the servers and tools above are installed
@@ -736,7 +753,9 @@ require('lazy').setup({
       -- for you, so that they are available from within Neovim.
       local ensure_installed = vim.tbl_keys(servers or {})
       vim.list_extend(ensure_installed, {
-        'stylua', -- Used to format Lua code
+        'stylua',
+        'prettierd',
+        'rustfmt',
       })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
@@ -789,11 +808,11 @@ require('lazy').setup({
       end,
       formatters_by_ft = {
         lua = { 'stylua' },
-        -- Conform can also run multiple formatters sequentially
-        -- python = { "isort", "black" },
-        --
-        -- You can use 'stop_after_first' to run the first available formatter from the list
-        -- javascript = { "prettierd", "prettier", stop_after_first = true },
+        rust = { 'rustfmt' },
+        javascript = { 'prettierd', 'prettier', stop_after_first = true },
+        typescript = { 'prettierd', 'prettier', stop_after_first = true },
+        typescriptreact = { 'prettierd', 'prettier', stop_after_first = true },
+        json = { 'prettierd' },
       },
     },
   },
@@ -893,7 +912,7 @@ require('lazy').setup({
       -- the rust implementation via `'prefer_rust_with_warning'`
       --
       -- See :h blink-cmp-config-fuzzy for more information
-      fuzzy = { implementation = 'lua' },
+      fuzzy = { implementation = 'prefer_rust_with_warning' },
 
       -- Shows a signature help window while you type arguments for a function
       signature = { enabled = true },
@@ -941,8 +960,24 @@ require('lazy').setup({
   },
 
   -- Highlight todo, notes, etc in comments
-  { 'folke/todo-comments.nvim', event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = false } },
+  {
+    'folke/todo-comments.nvim',
+    event = 'VimEnter',
+    dependencies = { 'nvim-lua/plenary.nvim' },
+    opts = {
+      signs = false,
 
+      keywords = {
+        NOTE = { color = 'note_color' },
+        TODO = { color = 'todo_color' },
+      },
+
+      colors = {
+        note_color = { '#80D9CA' }, -- change to any color
+        todo_color = { '#C9A87F' },
+      },
+    },
+  },
   { -- Collection of various small independent plugins/modules
     'echasnovski/mini.nvim',
     config = function()
@@ -986,7 +1021,7 @@ require('lazy').setup({
     main = 'nvim-treesitter.configs', -- Sets main module to use for opts
     -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
     opts = {
-      ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc' },
+      ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc', 'rust', 'typescript', 'tsx', 'toml', 'json' },
       -- Autoinstall languages that are not installed
       auto_install = true,
       highlight = {
@@ -1004,6 +1039,14 @@ require('lazy').setup({
     --    - Incremental selection: Included, see `:help nvim-treesitter-incremental-selection-mod`
     --    - Show your current context: https://github.com/nvim-treesitter/nvim-treesitter-context
     --    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
+  },
+
+  -- TypeScript language server (faster than ts_ls, connects directly to TypeScript)
+  {
+    'pmizio/typescript-tools.nvim',
+    dependencies = { 'nvim-lua/plenary.nvim', 'neovim/nvim-lspconfig' },
+    ft = { 'typescript', 'typescriptreact', 'javascript', 'javascriptreact' },
+    opts = {},
   },
 
   -- The following comments only work if you have downloaded the kickstart repo, not just copy pasted the
