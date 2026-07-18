@@ -66,3 +66,5 @@ alias wd="warp-cli disconnect"
 alias ws="warp-cli status"
 
 alias t="tmux"
+
+alias cava="cava -p ~/.config/cava/config"
