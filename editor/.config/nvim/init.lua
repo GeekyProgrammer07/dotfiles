@@ -701,6 +701,7 @@ require('lazy').setup({
         -- ts_ls = {},
         --
 
+        clangd = {},
         lua_ls = {
           -- cmd = { ... },
           -- filetypes = { ... },
@@ -755,6 +756,7 @@ require('lazy').setup({
       vim.list_extend(ensure_installed, {
         'stylua',
         'prettierd',
+        'codelldb',
       })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
@@ -795,8 +797,7 @@ require('lazy').setup({
         -- Disable "format_on_save lsp_fallback" for languages that don't
         -- have a well standardized coding style. You can add additional
         -- languages here or re-enable it for the disabled ones.
-        local disable_filetypes = { c = true, cpp = true }
-        if disable_filetypes[vim.bo[bufnr].filetype] then
+        if false then
           return nil
         else
           return {
@@ -1020,7 +1021,7 @@ require('lazy').setup({
     main = 'nvim-treesitter.configs', -- Sets main module to use for opts
     -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
     opts = {
-      ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc', 'rust', 'typescript', 'tsx', 'toml', 'json' },
+      ensure_installed = { 'bash', 'c', 'cpp', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc', 'rust', 'typescript', 'tsx', 'toml', 'json' },
       -- Autoinstall languages that are not installed
       auto_install = true,
       highlight = {
@@ -1046,6 +1047,74 @@ require('lazy').setup({
     dependencies = { 'nvim-lua/plenary.nvim', 'neovim/nvim-lspconfig' },
     ft = { 'typescript', 'typescriptreact', 'javascript', 'javascriptreact' },
     opts = {},
+  },
+
+  -- Debugger (DAP) — C/C++/Rust via codelldb
+  {
+    'mfussenegger/nvim-dap',
+    dependencies = {
+      'rcarriga/nvim-dap-ui',
+      { 'theHamsta/nvim-dap-virtual-text', opts = {} },
+    },
+    config = function()
+      local dap = require 'dap'
+      local dapui = require 'dapui'
+
+      dapui.setup()
+
+      -- Auto open/close UI when debug session starts/ends
+      dap.listeners.after.event_initialized['dapui_config'] = dapui.open
+      dap.listeners.before.event_terminated['dapui_config'] = dapui.close
+      dap.listeners.before.event_exited['dapui_config'] = dapui.close
+
+      -- codelldb adapter (installed by Mason)
+      dap.adapters.codelldb = {
+        type = 'server',
+        port = '${port}',
+        executable = {
+          command = vim.fn.stdpath 'data' .. '/mason/bin/codelldb',
+          args = { '--port', '${port}' },
+        },
+      }
+
+      -- C++ / C config — prompts for the executable path
+      dap.configurations.cpp = {
+        {
+          name = 'Launch',
+          type = 'codelldb',
+          request = 'launch',
+          program = function()
+            return vim.fn.input('Executable: ', vim.fn.getcwd() .. '/', 'file')
+          end,
+          cwd = '${workspaceFolder}',
+          stopOnEntry = false,
+        },
+      }
+      dap.configurations.c = dap.configurations.cpp
+
+      -- Rust config — defaults to target/debug/
+      dap.configurations.rust = {
+        {
+          name = 'Launch',
+          type = 'codelldb',
+          request = 'launch',
+          program = function()
+            return vim.fn.input('Executable: ', vim.fn.getcwd() .. '/target/debug/', 'file')
+          end,
+          cwd = '${workspaceFolder}',
+          stopOnEntry = false,
+        },
+      }
+
+      -- Keybinds
+      vim.keymap.set('n', '<F5>', dap.continue, { desc = 'DAP: Continue / Start' })
+      vim.keymap.set('n', '<F9>', dap.toggle_breakpoint, { desc = 'DAP: Toggle Breakpoint' })
+      vim.keymap.set('n', '<F10>', dap.step_over, { desc = 'DAP: Step Over' })
+      vim.keymap.set('n', '<F11>', dap.step_into, { desc = 'DAP: Step Into' })
+      vim.keymap.set('n', '<F12>', dap.step_out, { desc = 'DAP: Step Out' })
+      vim.keymap.set('n', '<leader>du', dapui.toggle, { desc = '[D]ebug: Toggle [U]I' })
+      vim.keymap.set('n', '<leader>dx', dap.terminate, { desc = '[D]ebug: Terminate' })
+    end,
   },
 
   -- The following comments only work if you have downloaded the kickstart repo, not just copy pasted the
